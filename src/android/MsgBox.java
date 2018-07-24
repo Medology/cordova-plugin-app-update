@@ -49,8 +49,7 @@ public class MsgBox {
       noticeDialog = builder.create();
     }
 
-    if (!noticeDialog.isShowing())
-      noticeDialog.show();
+    if (!noticeDialog.isShowing()) noticeDialog.show();
 
     noticeDialog.setCanceledOnTouchOutside(false);// Set the click screen Dialog does not disappear
     return noticeDialog;
@@ -59,8 +58,12 @@ public class MsgBox {
   /**
    * Display software download dialog
    */
-  public Map<String, Object> showDownloadDialog(OnClickListener onClickListenerNeg, OnClickListener onClickListenerPos,
-      OnClickListener onClickListenerNeu, boolean showDialog) {
+  public Map<String, Object> showDownloadDialog(
+    OnClickListener onClickListenerNeg,
+    OnClickListener onClickListenerPos,
+    OnClickListener onClickListenerNeu,
+    boolean showDialog
+  ) {
     if (downloadDialog == null) {
       LOG.d(TAG, "showDownloadDialog");
 
