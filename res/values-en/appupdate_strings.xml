@@ -13,6 +13,6 @@
     <string name="download_complete_neu_btn">Install manually</string>
 
     <string name="update_error_title">Error</string>
-    <string name="update_error_message">The current network is unavailable, please check your network settings.</string>
+    <string name="update_error_message">Internet connection is not available, please check your network settings.</string>
     <string name="update_error_yes_btn">OK</string>
 </resources>
