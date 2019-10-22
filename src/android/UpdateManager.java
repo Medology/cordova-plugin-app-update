@@ -136,6 +136,10 @@ public class UpdateManager {
      * 对比版本号
      */
     private void compareVersions() {
+        if (queue.size() == 0) {
+            mHandler.sendEmptyMessage(Constants.VERSION_COMPARE_FAIL);
+            return;
+        }
         Version version = queue.get(0);
         int versionCodeLocal = version.getLocal();
         int versionCodeRemote = version.getRemote();
