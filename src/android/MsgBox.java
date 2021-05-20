@@ -41,8 +41,22 @@ public class MsgBox {
     if (noticeDialog == null) {
       LOG.d(TAG, "showNoticeDialog");
       // Construction dialog
+      final LayoutInflater inflater = LayoutInflater.from(mContext);
+      View customTitle = inflater.inflate(msgHelper.getLayout("custom_title"), null);
       AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-      builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
+
+      // TextView title = new TextView(this);
+      // // You Can Customise your Title here 
+      // title.setText(msgHelper.getString(MsgHelper.UPDATE_TITLE));
+      // // title.setBackgroundColor(Color.DKGRAY);
+      // title.setPadding(10, 10, 10, 10);
+      // title.setGravity(Gravity.CENTER);
+      // title.setTextColor(Color.WHITE);
+      // title.setTextSize(20);
+
+      builder.setCustomTitle(customTitle);
+
+      // builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
       builder.setMessage(msgHelper.getString(MsgHelper.UPDATE_MESSAGE));
       // Update
       builder.setPositiveButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
