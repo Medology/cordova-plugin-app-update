@@ -8,8 +8,16 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.ProgressBar;
+import android.util.Log;
 import org.apache.cordova.LOG;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
+import org.json.JSONObject;
+import org.json.JSONException;
+
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +28,7 @@ import java.util.Map;
 public class MsgBox {
   public static final String TAG = "MsgBox";
   private Context mContext;
+  private CallbackContext callback;
   private MsgHelper msgHelper;
 
   private Dialog noticeDialog;
@@ -27,7 +36,15 @@ public class MsgBox {
   private ProgressBar downloadDialogProgress;
   private Dialog errorDialog;
 
+  public MsgBox(Context mContext, CallbackContext callback) {
+    Log.d("msgbox", "msgbox with callback");
+    this.mContext = mContext;
+    this.callback = callback;
+    this.msgHelper = new MsgHelper(mContext.getPackageName(), mContext.getResources());
+  }
+  
   public MsgBox(Context mContext) {
+    Log.d("msgbox", "msgbox only");
     this.mContext = mContext;
     this.msgHelper = new MsgHelper(mContext.getPackageName(), mContext.getResources());
   }
@@ -41,11 +58,34 @@ public class MsgBox {
     if (noticeDialog == null) {
       LOG.d(TAG, "showNoticeDialog");
       // Construction dialog
+      final LayoutInflater inflater = LayoutInflater.from(mContext);
+      View customTitle = inflater.inflate(msgHelper.getLayout("custom_title"), null);
+      TextView debugButton = customTitle.findViewById(msgHelper.getId("debug_button"));
+      debugButton.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
+          try {
+            JSONObject response = new JSONObject();
+            response.put("debugClicked", true);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, response);
+            result.setKeepCallback(true);
+            callback.sendPluginResult(result); // this keeps prevents cbContext from closing
+          } catch (JSONException e) {
+            // Eat this error so that processing is not interrupted. It's okay if status
+            // is not sent
+            Log.d(TAG, "Error occurred sending transfering state " + e.getMessage());
+          }
+      
+        }
+      });
       AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-      builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
+/*       builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
+ */      builder.setCustomTitle(customTitle);
+
+
       builder.setMessage(msgHelper.getString(MsgHelper.UPDATE_MESSAGE));
       // Update
       builder.setPositiveButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
+      
       noticeDialog = builder.create();
     }
 

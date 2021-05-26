@@ -31,7 +31,7 @@ public class CheckAppUpdate extends CordovaPlugin {
             getUpdateManager(args, callbackContext).checkUpdate();
             return true;
         }
-        callbackContext.error(Utils.makeJSON(Constants.NO_SUCH_METHOD, "no such method: " + action));
+        //callbackContext.error(Utils.makeJSON(Constants.NO_SUCH_METHOD, "no such method: " + action));
         return false;
     }
 
@@ -39,7 +39,7 @@ public class CheckAppUpdate extends CordovaPlugin {
             throws JSONException {
 
         if (this.updateManager == null) {
-            this.updateManager = new UpdateManager(this.cordova.getActivity(), this.cordova);
+            this.updateManager = new UpdateManager(this.cordova.getActivity(), this.cordova, callbackContext);
         }
 
         return this.updateManager.options(args, callbackContext);
