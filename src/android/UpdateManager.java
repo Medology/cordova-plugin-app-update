@@ -87,8 +87,7 @@ public class UpdateManager {
                 case Constants.NETWORK_ERROR:
                     //暂时隐藏错误
                     //msgBox.showErrorDialog(errorDialogOnClick);
-                    Log.d("title 3.3", "network error");
-                    //callbackContext.error(Utils.makeJSON(Constants.NETWORK_ERROR, "network error"));
+                    callbackContext.error(Utils.makeJSON(Constants.NETWORK_ERROR, "network error"));
                     break;
                 case Constants.VERSION_COMPARE_START:
                     compareVersions();
@@ -109,20 +108,16 @@ public class UpdateManager {
                     //callbackContext.success(Utils.makeJSON(Constants.VERSION_UP_TO_UPDATE, "success, up to date."));
                     break;
                 case Constants.VERSION_COMPARE_FAIL:
-                    Log.d("title 1","version compare fail");
-                    //callbackContext.error(Utils.makeJSON(Constants.VERSION_COMPARE_FAIL, "version compare fail"));
+                    callbackContext.error(Utils.makeJSON(Constants.VERSION_COMPARE_FAIL, "version compare fail"));
                     break;
                 case Constants.VERSION_RESOLVE_FAIL:
-                Log.d("title 2", "version resolve fail");
-                    //callbackContext.error(Utils.makeJSON(Constants.VERSION_RESOLVE_FAIL, "version resolve fail"));
+                    callbackContext.error(Utils.makeJSON(Constants.VERSION_RESOLVE_FAIL, "version resolve fail"));
                     break;
                 case Constants.REMOTE_FILE_NOT_FOUND:
-                Log.d("title 3", "remote file not found");
-                   // callbackContext.error(Utils.makeJSON(Constants.REMOTE_FILE_NOT_FOUND, "remote file not found"));
+                   callbackContext.error(Utils.makeJSON(Constants.REMOTE_FILE_NOT_FOUND, "remote file not found"));
                     break;
                 default:
-                Log.d("title 3.2", "uknow error");
-                    //callbackContext.error(Utils.makeJSON(Constants.UNKNOWN_ERROR, "unknown error"));
+                callbackContext.error(Utils.makeJSON(Constants.UNKNOWN_ERROR, "unknown error"));
             }
 
         }

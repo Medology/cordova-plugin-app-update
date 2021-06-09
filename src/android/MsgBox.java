@@ -8,9 +8,14 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.app.DialogFragment;
 import android.util.Log;
+import android.graphics.Color;
+import android.widget.Button;
 import org.apache.cordova.LOG;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
@@ -30,8 +35,9 @@ public class MsgBox {
   private Context mContext;
   private CallbackContext callback;
   private MsgHelper msgHelper;
+  private boolean showDebugButton = true;
 
-  private Dialog noticeDialog;
+  private AlertDialog noticeDialog;
   private AlertDialog downloadDialog;
   private ProgressBar downloadDialogProgress;
   private Dialog errorDialog;
@@ -57,39 +63,62 @@ public class MsgBox {
   public Dialog showNoticeDialog(OnClickListener onClickListener) {
     if (noticeDialog == null) {
       LOG.d(TAG, "showNoticeDialog");
-      // Construction dialog
-      final LayoutInflater inflater = LayoutInflater.from(mContext);
-      View customTitle = inflater.inflate(msgHelper.getLayout("custom_title"), null);
-      TextView debugButton = customTitle.findViewById(msgHelper.getId("debug_button"));
-      debugButton.setOnClickListener(new View.OnClickListener() {
-        public void onClick(View v) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+      builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
+      builder.setPositiveButton("Debug", new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
           try {
             JSONObject response = new JSONObject();
             response.put("debugClicked", true);
             PluginResult result = new PluginResult(PluginResult.Status.OK, response);
             result.setKeepCallback(true);
-            callback.sendPluginResult(result); // this keeps prevents cbContext from closing
+            callback.sendPluginResult(result); // this keeps prevents cbContext from closing */
+            showDebugButton = true;
           } catch (JSONException e) {
-            // Eat this error so that processing is not interrupted. It's okay if status
-            // is not sent
             Log.d(TAG, "Error occurred sending transfering state " + e.getMessage());
           }
-      
-        }
-      });
-      AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-/*       builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
- */      builder.setCustomTitle(customTitle);
-
-
+        }});
       builder.setMessage(msgHelper.getString(MsgHelper.UPDATE_MESSAGE));
-      // Update
-      builder.setPositiveButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
-      
+      builder.setIcon(android.R.drawable.ic_dialog_alert);
+      builder.setNeutralButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
+      builder.setNegativeButton("...", new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            //Do nothing here because we override this button later to change the close behaviour. 
+            //However, we still need this because on older versions of Android unless we 
+            //pass a handler the button doesn't get instantiated
+        }       
+        });
       noticeDialog = builder.create();
-    }
-
-    if (!noticeDialog.isShowing()) noticeDialog.show();
+      }
+      
+    if (!noticeDialog.isShowing()){
+        noticeDialog.show();
+        ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+        Button positiveButton = noticeDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        positiveButton.setRotation(90);
+        positiveButton.setTextSize(30);
+        positiveButton.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+          LinearLayout.LayoutParams.WRAP_CONTENT,
+          LinearLayout.LayoutParams.WRAP_CONTENT
+      );
+        params.setMargins(60,-7,0,0);
+        positiveButton.setLayoutParams(params);        
+        positiveButton.setOnClickListener(new View.OnClickListener(){
+          @Override
+          public void onClick(View v) {
+            showDebugButton = !showDebugButton;
+            if(showDebugButton){
+              ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+            } else {
+              ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+            }
+          }
+        });
+      } 
 
     noticeDialog.setCanceledOnTouchOutside(false);// Set the click screen Dialog does not disappear
     return noticeDialog;

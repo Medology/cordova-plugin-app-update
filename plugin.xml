@@ -49,7 +49,6 @@
         <source-file src="res/values-it/appupdate_strings.xml" target-dir="res/values-it"/>
         <source-file src="res/values-ko/appupdate_strings.xml" target-dir="res/values-ko"/>
         <source-file src="res/layout/appupdate_progress.xml" target-dir="res/layout"/>
-        <source-file src="res/layout/custom_title.xml" target-dir="res/layout"/>
         <source-file src="res/xml/appupdate_paths.xml" target-dir="res/xml" />
         
         <framework src="com.android.support:support-v4:24.1.1+" />
