@@ -157,7 +157,7 @@ public class UpdateManager {
 
         //比对版本号
         //检查软件是否有更新版本
-        if (versionCodeLocal < versionCodeRemote) {
+        //if (versionCodeLocal < versionCodeRemote) { Remember to uncomment this before push 
             if (isDownloading) {
                 msgBox.showDownloadDialog(null, null, null, !skipProgressDialog);
                 mHandler.sendEmptyMessage(Constants.VERSION_UPDATING);
@@ -171,11 +171,11 @@ public class UpdateManager {
                     mHandler.sendEmptyMessage(Constants.VERSION_NEED_UPDATE);
                 }
             }
-        } else {
+        //} else {
             mHandler.sendEmptyMessage(Constants.VERSION_UP_TO_UPDATE);
             // Do not show Toast
             //Toast.makeText(mContext, getString("update_latest"), Toast.LENGTH_LONG).show();
-        }
+        //}
     }
 
     private OnClickListener noticeDialogOnClick = new OnClickListener() {

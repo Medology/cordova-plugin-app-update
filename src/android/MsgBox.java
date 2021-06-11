@@ -16,6 +16,7 @@ import android.app.DialogFragment;
 import android.util.Log;
 import android.graphics.Color;
 import android.widget.Button;
+import android.graphics.drawable.GradientDrawable;
 import org.apache.cordova.LOG;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
@@ -35,7 +36,6 @@ public class MsgBox {
   private Context mContext;
   private CallbackContext callback;
   private MsgHelper msgHelper;
-  private boolean showDebugButton = true;
 
   private AlertDialog noticeDialog;
   private AlertDialog downloadDialog;
@@ -74,13 +74,12 @@ public class MsgBox {
             PluginResult result = new PluginResult(PluginResult.Status.OK, response);
             result.setKeepCallback(true);
             callback.sendPluginResult(result); // this keeps prevents cbContext from closing */
-            showDebugButton = true;
+            ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE); // if the user taps 'check updates' again, this show the icon button again 
           } catch (JSONException e) {
             Log.d(TAG, "Error occurred sending transfering state " + e.getMessage());
           }
         }});
       builder.setMessage(msgHelper.getString(MsgHelper.UPDATE_MESSAGE));
-      builder.setIcon(android.R.drawable.ic_dialog_alert);
       builder.setNeutralButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
       builder.setNegativeButton("...", new OnClickListener() {
         @Override
@@ -96,32 +95,41 @@ public class MsgBox {
       
     if (!noticeDialog.isShowing()){
         noticeDialog.show();
-        ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
-        Button positiveButton = noticeDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        positiveButton.setRotation(90);
-        positiveButton.setTextSize(30);
-        positiveButton.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+        // debug button styles
+        Button debugButton = ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE);
+        debugButton.setVisibility(View.GONE);
+        GradientDrawable border = new GradientDrawable();
+        border.setColor(Color.TRANSPARENT); 
+        border.setStroke(1, 0xFF000000); 
+        debugButton.setBackground(border);
+        debugButton.setPadding(0,11,0,11);
+        // icon button styles
+        Button iconButton = ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+        iconButton.setVisibility(View.VISIBLE);
+        iconButton.setRotation(90);
+        iconButton.setTextSize(30);
+        iconButton.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams iconButtonParams = new LinearLayout.LayoutParams(
           LinearLayout.LayoutParams.WRAP_CONTENT,
           LinearLayout.LayoutParams.WRAP_CONTENT
-      );
-        params.setMargins(60,-7,0,0);
-        positiveButton.setLayoutParams(params);        
-        positiveButton.setOnClickListener(new View.OnClickListener(){
+          );
+        iconButtonParams.setMargins(16,-7,0,0);
+        iconButton.setLayoutParams(iconButtonParams);
+        iconButton.setOnClickListener(new View.OnClickListener(){
           @Override
           public void onClick(View v) {
-            showDebugButton = !showDebugButton;
-            if(showDebugButton){
-              ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
-            } else {
-              ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
-            }
+            ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
+            ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
           }
         });
       } 
 
     noticeDialog.setCanceledOnTouchOutside(false);// Set the click screen Dialog does not disappear
     return noticeDialog;
+  }
+
+  public void unhideUpdateModal() {
+    noticeDialog.show();
   }
 
   /**

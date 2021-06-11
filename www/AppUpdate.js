@@ -30,3 +30,9 @@ exports.checkAppUpdate = function(successOrUrl, errorOrOptions, updateUrl, optio
     
     exec(successCallback, errorCallback, "AppUpdate", "checkAppUpdate",  [updateUrl, options]);
 };
+
+exports.unhideUpdateModal = function () {
+    return new Promise(function (resolve, reject) {
+      exec(resolve, reject, "AppUpdate", "unhideFirmwareUpdateModal", []);
+    });
+  }
