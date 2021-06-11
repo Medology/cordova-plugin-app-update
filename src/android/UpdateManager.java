@@ -46,11 +46,12 @@ public class UpdateManager {
     private CheckUpdateThread checkUpdateThread;
     private DownloadApkThread downloadApkThread;
 
-    public UpdateManager(Context context, CordovaInterface cordova) {
+    public UpdateManager(Context context, CordovaInterface cordova, CallbackContext callbackContext) {
         this.cordova = cordova;
         this.mContext = context;
+        this.callbackContext = callbackContext;
         packageName = mContext.getPackageName();
-        msgBox = new MsgBox(mContext);
+        msgBox = new MsgBox(mContext, callbackContext);
     }
 
     public UpdateManager(JSONArray args, CallbackContext callbackContext, Context context, JSONObject options) {
@@ -64,7 +65,7 @@ public class UpdateManager {
         this.options = options;
         this.mContext = context;
         packageName = mContext.getPackageName();
-        msgBox = new MsgBox(mContext);
+        msgBox = new MsgBox(mContext, callbackContext);
     }
 
     public UpdateManager options(JSONArray args, CallbackContext callbackContext)
@@ -97,13 +98,13 @@ public class UpdateManager {
                     isDownloading = false;
                     break;
                 case Constants.VERSION_UPDATING:
-                    callbackContext.success(Utils.makeJSON(Constants.VERSION_UPDATING, "success, version updating."));
+                    //callbackContext.success(Utils.makeJSON(Constants.VERSION_UPDATING, "success, version updating."));
                     break;
                 case Constants.VERSION_NEED_UPDATE:
-                    callbackContext.success(Utils.makeJSON(Constants.VERSION_NEED_UPDATE, "success, need date."));
+                    //callbackContext.success(Utils.makeJSON(Constants.VERSION_NEED_UPDATE, "success, need date."));
                     break;
                 case Constants.VERSION_UP_TO_UPDATE:
-                    callbackContext.success(Utils.makeJSON(Constants.VERSION_UP_TO_UPDATE, "success, up to date."));
+                    //callbackContext.success(Utils.makeJSON(Constants.VERSION_UP_TO_UPDATE, "success, up to date."));
                     break;
                 case Constants.VERSION_COMPARE_FAIL:
                     callbackContext.error(Utils.makeJSON(Constants.VERSION_COMPARE_FAIL, "version compare fail"));
@@ -112,10 +113,10 @@ public class UpdateManager {
                     callbackContext.error(Utils.makeJSON(Constants.VERSION_RESOLVE_FAIL, "version resolve fail"));
                     break;
                 case Constants.REMOTE_FILE_NOT_FOUND:
-                    callbackContext.error(Utils.makeJSON(Constants.REMOTE_FILE_NOT_FOUND, "remote file not found"));
+                   callbackContext.error(Utils.makeJSON(Constants.REMOTE_FILE_NOT_FOUND, "remote file not found"));
                     break;
                 default:
-                    callbackContext.error(Utils.makeJSON(Constants.UNKNOWN_ERROR, "unknown error"));
+                callbackContext.error(Utils.makeJSON(Constants.UNKNOWN_ERROR, "unknown error"));
             }
 
         }
@@ -156,7 +157,7 @@ public class UpdateManager {
 
         //比对版本号
         //检查软件是否有更新版本
-        if (versionCodeLocal < versionCodeRemote) {
+        //if (versionCodeLocal < versionCodeRemote) { Remember to uncomment this before push 
             if (isDownloading) {
                 msgBox.showDownloadDialog(null, null, null, !skipProgressDialog);
                 mHandler.sendEmptyMessage(Constants.VERSION_UPDATING);
@@ -170,11 +171,11 @@ public class UpdateManager {
                     mHandler.sendEmptyMessage(Constants.VERSION_NEED_UPDATE);
                 }
             }
-        } else {
+        //} else {
             mHandler.sendEmptyMessage(Constants.VERSION_UP_TO_UPDATE);
             // Do not show Toast
             //Toast.makeText(mContext, getString("update_latest"), Toast.LENGTH_LONG).show();
-        }
+        //}
     }
 
     private OnClickListener noticeDialogOnClick = new OnClickListener() {

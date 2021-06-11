@@ -8,8 +8,22 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.app.DialogFragment;
+import android.util.Log;
+import android.graphics.Color;
+import android.widget.Button;
+import android.graphics.drawable.GradientDrawable;
 import org.apache.cordova.LOG;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
+import org.json.JSONObject;
+import org.json.JSONException;
+
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,14 +34,23 @@ import java.util.Map;
 public class MsgBox {
   public static final String TAG = "MsgBox";
   private Context mContext;
+  private CallbackContext callback;
   private MsgHelper msgHelper;
 
-  private Dialog noticeDialog;
+  private AlertDialog noticeDialog;
   private AlertDialog downloadDialog;
   private ProgressBar downloadDialogProgress;
   private Dialog errorDialog;
 
+  public MsgBox(Context mContext, CallbackContext callback) {
+    Log.d("msgbox", "msgbox with callback");
+    this.mContext = mContext;
+    this.callback = callback;
+    this.msgHelper = new MsgHelper(mContext.getPackageName(), mContext.getResources());
+  }
+  
   public MsgBox(Context mContext) {
+    Log.d("msgbox", "msgbox only");
     this.mContext = mContext;
     this.msgHelper = new MsgHelper(mContext.getPackageName(), mContext.getResources());
   }
@@ -40,19 +63,73 @@ public class MsgBox {
   public Dialog showNoticeDialog(OnClickListener onClickListener) {
     if (noticeDialog == null) {
       LOG.d(TAG, "showNoticeDialog");
-      // Construction dialog
       AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
       builder.setTitle(msgHelper.getString(MsgHelper.UPDATE_TITLE));
+      builder.setPositiveButton("Debug", new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          try {
+            JSONObject response = new JSONObject();
+            response.put("debugClicked", true);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, response);
+            result.setKeepCallback(true);
+            callback.sendPluginResult(result); // this keeps prevents cbContext from closing */
+            ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE); // if the user taps 'check updates' again, this show the icon button again 
+          } catch (JSONException e) {
+            Log.d(TAG, "Error occurred sending transfering state " + e.getMessage());
+          }
+        }});
       builder.setMessage(msgHelper.getString(MsgHelper.UPDATE_MESSAGE));
-      // Update
-      builder.setPositiveButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
+      builder.setNeutralButton(msgHelper.getString(MsgHelper.UPDATE_UPDATE_BTN), onClickListener);
+      builder.setNegativeButton("...", new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            //Do nothing here because we override this button later to change the close behaviour. 
+            //However, we still need this because on older versions of Android unless we 
+            //pass a handler the button doesn't get instantiated
+        }       
+        });
       noticeDialog = builder.create();
-    }
-
-    if (!noticeDialog.isShowing()) noticeDialog.show();
+      }
+      
+    if (!noticeDialog.isShowing()){
+        noticeDialog.show();
+        // debug button styles
+        Button debugButton = ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE);
+        debugButton.setVisibility(View.GONE);
+        GradientDrawable border = new GradientDrawable();
+        border.setColor(Color.TRANSPARENT); 
+        border.setStroke(1, 0xFF000000); 
+        debugButton.setBackground(border);
+        debugButton.setPadding(0,11,0,11);
+        // icon button styles
+        Button iconButton = ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+        iconButton.setVisibility(View.VISIBLE);
+        iconButton.setRotation(90);
+        iconButton.setTextSize(30);
+        iconButton.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams iconButtonParams = new LinearLayout.LayoutParams(
+          LinearLayout.LayoutParams.WRAP_CONTENT,
+          LinearLayout.LayoutParams.WRAP_CONTENT
+          );
+        iconButtonParams.setMargins(16,-7,0,0);
+        iconButton.setLayoutParams(iconButtonParams);
+        iconButton.setOnClickListener(new View.OnClickListener(){
+          @Override
+          public void onClick(View v) {
+            ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
+            ((AlertDialog)noticeDialog).getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+          }
+        });
+      } 
 
     noticeDialog.setCanceledOnTouchOutside(false);// Set the click screen Dialog does not disappear
     return noticeDialog;
+  }
+
+  public void unhideUpdateModal() {
+    noticeDialog.show();
   }
 
   /**
